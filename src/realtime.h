@@ -12,6 +12,11 @@
 #include <QOpenGLWidget>
 #include <QTime>
 #include <QTimer>
+#include "utils/sceneparser.h"
+#include "shapes/Cube.h"
+#include "shapes/Sphere.h"
+#include "shapes/Cylinder.h"
+#include "shapes/Cone.h"
 
 class Realtime : public QOpenGLWidget
 {
@@ -48,4 +53,44 @@ private:
 
     // Device Correction Variables
     int m_devicePixelRatio;
+
+    Cube cube_data;
+    Cylinder cyl_data;
+    Sphere sphere_data;
+    Cone cone_data;
+
+    //added stuff
+    GLuint m_shader;
+    glm::mat4 m_view  = glm::mat4(1);
+    glm::mat4 m_proj  = glm::mat4(1);
+
+    GLuint m_sphere_vbo; // Stores id of vbo
+    GLuint m_sphere_vao; // Stores id of vao
+
+    //ids of the four primitves stored here
+
+    //sphere cube cyl cone
+    std::vector<GLuint> VBOS;
+    std::vector<GLuint> VAOS;
+
+    std::vector<float> m_sphereData;
+    glm::mat4 m_model = glm::mat4(1);
+
+    glm::vec4 m_lightPos = glm::vec4(1); // The world-space position of the point light
+    glm::vec4 m_camPos = glm::vec4(1);
+
+
+    float m_ka;
+    float m_kd;
+    float m_ks;
+    float m_shininess;
+    RenderData m_metaData;
+
+    float curr_near= 0;
+    float curr_far = 0;
+    float curr_p1 = 1;
+    float curr_p2 = 1;
+
+    void updateBuffers();
+
 };
