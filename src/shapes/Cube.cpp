@@ -10,8 +10,6 @@ void Cube::makeTile(glm::vec3 topLeft,
                     glm::vec3 topRight,
                     glm::vec3 bottomLeft,
                     glm::vec3 bottomRight) {
-    // Task 2: create a tile (i.e. 2 triangles) based on 4 given points.
-
     glm::vec3 n = glm::normalize(glm::cross(bottomLeft - topLeft, bottomRight-topLeft));
     insertVec3(m_vertexData, topLeft);
     insertVec3(m_vertexData, n);
@@ -39,11 +37,6 @@ void Cube::makeFace(glm::vec3 topLeft,
                     glm::vec3 topRight,
                     glm::vec3 bottomLeft,
                     glm::vec3 bottomRight) {
-    // Task 3: create a single side of the cube out of the 4
-    //         given points and makeTile()
-    // Note: think about how param 1 affects the number of triangles on
-    //       the face of the cube
-
     int index;
     float square_size = 1/((float) m_param1);
 
@@ -100,11 +93,8 @@ void Cube::makeFace(glm::vec3 topLeft,
         }
     }
 
-
-
     //if Z face
     else{
-        index = 2;
         glm::vec3 holder;
         float neg = 1;
 
@@ -133,16 +123,6 @@ void Cube::makeFace(glm::vec3 topLeft,
 }
 
 void Cube::setVertexData() {
-    // Uncomment these lines for Task 2, then comment them out for Task 3:
-
-//     makeTile(glm::vec3(-0.5f,  0.5f, 0.5f),
-//              glm::vec3( 0.5f,  0.5f, 0.5f),
-//              glm::vec3(-0.5f, -0.5f, 0.5f),
-//              glm::vec3( 0.5f, -0.5f, 0.5f));
-
-    // Uncomment these lines for Task 3:
-
-
     //front face
      makeFace(glm::vec3(-0.5f,  0.5f, 0.5f),
               glm::vec3( 0.5f,  0.5f, 0.5f),

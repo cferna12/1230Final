@@ -34,7 +34,6 @@ add_executable(${PROJECT_NAME}
     src/utils/scenefilereader.cpp
     src/utils/sceneparser.cpp
 
-    src/shapes/Triangle.cpp
     src/shapes/Cube.cpp
     src/shapes/Sphere.cpp
     src/shapes/Cylinder.cpp
@@ -49,7 +48,6 @@ add_executable(${PROJECT_NAME}
     src/utils/sceneparser.h
     src/utils/shaderloader.h
 
-    src/shapes/Triangle.h
     src/shapes/Cube.h
     src/shapes/Sphere.h
     src/shapes/Cylinder.h

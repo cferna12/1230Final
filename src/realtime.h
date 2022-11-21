@@ -64,27 +64,14 @@ private:
     glm::mat4 m_view  = glm::mat4(1);
     glm::mat4 m_proj  = glm::mat4(1);
 
-    GLuint m_sphere_vbo; // Stores id of vbo
-    GLuint m_sphere_vao; // Stores id of vao
-
-    //ids of the four primitves stored here
-
     //sphere cube cyl cone
     std::vector<GLuint> VBOS;
     std::vector<GLuint> VAOS;
 
     std::vector<float> m_sphereData;
-    glm::mat4 m_model = glm::mat4(1);
-
-    glm::vec4 m_lightPos = glm::vec4(1); // The world-space position of the point light
-    glm::vec4 m_camPos = glm::vec4(1);
 
     std::vector<float> shape_data_sizes;
 
-    float m_ka;
-    float m_kd;
-    float m_ks;
-    float m_shininess;
     RenderData m_metaData;
 
     float curr_near= 0;

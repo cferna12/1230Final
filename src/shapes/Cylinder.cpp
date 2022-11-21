@@ -10,12 +10,11 @@ void Cylinder::updateParams(int param1, int param2) {
     setVertexData();
 }
 
-//same code from cube
+//same code from Cube for inserting tile vertices and normals
 void Cylinder::makeCubeTile(glm::vec3 topLeft,
                     glm::vec3 topRight,
                     glm::vec3 bottomLeft,
                     glm::vec3 bottomRight) {
-    // Task 2: create a tile (i.e. 2 triangles) based on 4 given points.
 
     glm::vec3 n = glm::normalize(glm::cross(bottomLeft - topLeft, bottomRight-topLeft));
     insertVec3(m_vertexData, topLeft);
@@ -96,10 +95,8 @@ void Cylinder::makeTriangle(glm::vec3 topRight,
 
 
 void Cylinder::makeWedge(float currentTheta, float nextTheta) {
-
     float r = 0.5;
     float y = 0.5;
-
 
     float x1 = r*cos(currentTheta);
     float z1 = r*sin(currentTheta);
@@ -119,7 +116,6 @@ void Cylinder::makeWedge(float currentTheta, float nextTheta) {
     makeTriangle({v3[0], -0.5, v3[2]}, {v2[0], -0.5, v2[2]}, {v1[0], -0.5, v1[2]}, glm::vec3{0,-1,0});
 
     for(int i = 0; i < m_param1; i++){
-
         /*Makes side tiles of cylinder*/
         float next_y = y - (1.f)/(float) m_param1;
         glm::vec3 TR = {x1, y, z1};
@@ -127,7 +123,6 @@ void Cylinder::makeWedge(float currentTheta, float nextTheta) {
         glm::vec3 BR = {x1, next_y, z1};
         glm::vec3 BL = {x2, next_y, z2};
         makeCylinderTile(TL, TR, BL, BR);
-
 
         /*Make top cap*/
         glm::vec3 v2 =   {tri_x1*(i+1), 0.5, tri_z1*(i+1)};
@@ -141,13 +136,10 @@ void Cylinder::makeWedge(float currentTheta, float nextTheta) {
         v1 = v2;
         v3 = v4;
         y = next_y;
-
     }
-
 }
 
 void Cylinder::makeCylinder() {
-
     float thetaStep = glm::radians(360.f/m_param2);
     float currTheta = 0.f;
     for(int i = 0; i < m_param2; i++){
@@ -157,7 +149,7 @@ void Cylinder::makeCylinder() {
 }
 
 void Cylinder::setVertexData() {
-    // TODO for Project 5: Lights, Camera
+    //clamp param2 to minimum
     m_param2 = m_param2 < 3 ? 3: m_param2;
     makeCylinder();
 }

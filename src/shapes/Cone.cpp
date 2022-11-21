@@ -87,10 +87,8 @@ void Cone::makeWedge(float currentTheta, float nextTheta) {
     float r = m_radius;
     float y = 0.5;
 
-
     float x1 = r*cos(currentTheta);
     float z1 = r*sin(currentTheta);
-
     float x2 = r*cos(nextTheta);
     float z2 = r*sin(nextTheta);
 
@@ -104,12 +102,9 @@ void Cone::makeWedge(float currentTheta, float nextTheta) {
     glm::vec3 v3 = {tri_x2, -0.5, tri_z2};
     makeTriangle(v3, v2, v1, {0,-1,0});
 
-
     glm::vec3 vv1 = {0,0.5,0};
     glm::vec3 vv2 = {0,0.5,0};
     glm::vec3 vv3 = {0,0.5,0};
-
-
 
     //create base triangle
     for(int i = 0; i < 1; i++){
@@ -196,7 +191,6 @@ void Cone::makeTipTriangle(glm::vec3 topRight,
 
 
 void Cone::makeCone() {
-
     float thetaStep = glm::radians(360.f/m_param2);
     float currTheta = 0.f;
     for(int i = 0; i < m_param2; i++){

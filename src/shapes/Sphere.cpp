@@ -11,11 +11,6 @@ void Sphere::makeTile(glm::vec3 topLeft,
                       glm::vec3 topRight,
                       glm::vec3 bottomLeft,
                       glm::vec3 bottomRight) {
-    // Task 5: Implement the makeTile() function for a Sphere
-    // Note: this function is very similar to the makeTile() function for Cube,
-    //       but the normals are calculated in a different way!
-
-
     insertVec3(m_vertexData, topLeft);
     insertVec3(m_vertexData, topLeft);
 
