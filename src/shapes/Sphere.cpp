@@ -36,12 +36,11 @@ void Sphere::makeTile(glm::vec3 topLeft,
 }
 
 void Sphere::makeWedge(float currentTheta, float nextTheta) {
-    // Task 6: create a single wedge of the sphere using the
-    //         makeTile() function you implemented in Task 5
-    // Note: think about how param 1 comes into play here!
     float thetaStep = glm::radians(180.f/m_param1);
     float topPhi = 0.f;
     float bottomPhi = topPhi + thetaStep;
+
+    float r = 0.5;
     for(int i = 0; i < m_param1; i++){
 
         glm::vec3 TL = {sin(topPhi) * sin(currentTheta), cos(topPhi), sin(topPhi) * cos(currentTheta)};
@@ -49,20 +48,21 @@ void Sphere::makeWedge(float currentTheta, float nextTheta) {
         glm::vec3 BL = {sin(bottomPhi) * sin(currentTheta), cos(bottomPhi), sin(bottomPhi) * cos(currentTheta)};
         glm::vec3 BR = {sin(bottomPhi) * sin(nextTheta), cos(bottomPhi), sin(bottomPhi) * cos(nextTheta)};
 
+        TL *= r;
+        TR *= r;
+        BL *= r;
+        BR *= r;
         makeTile(TL, TR, BL, BR);
 
         topPhi = bottomPhi;
         bottomPhi += thetaStep;
-
 
     }
 
 }
 
 void Sphere::makeSphere() {
-    // Task 7: create a full sphere using the makeWedge() function you
-    //         implemented in Task 6
-    // Note: think about how param 2 comes into play here!
+
     float thetaStep = glm::radians(360.f/m_param2);
     float currTheta = 0.f;
     for(int i = 0; i < m_param2; i++){
@@ -72,14 +72,9 @@ void Sphere::makeSphere() {
 }
 
 void Sphere::setVertexData() {
-    // Uncomment these lines to make a wedge for Task 6, then comment them out for Task 7:
-
-
     //param2 = wedges
     //param1 = phi
 
-
-    // Uncomment these lines to make sphere for Task 7:
      m_param1 = m_param1 < 2 ? 2: m_param1;
      m_param2 = m_param2 < 3 ? 3: m_param2;
      makeSphere();

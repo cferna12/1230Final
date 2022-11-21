@@ -15,6 +15,8 @@ void Cylinder::makeCubeTile(glm::vec3 topLeft,
                     glm::vec3 topRight,
                     glm::vec3 bottomLeft,
                     glm::vec3 bottomRight) {
+    // Task 2: create a tile (i.e. 2 triangles) based on 4 given points.
+
     glm::vec3 n = glm::normalize(glm::cross(bottomLeft - topLeft, bottomRight-topLeft));
     insertVec3(m_vertexData, topLeft);
     insertVec3(m_vertexData, n);
@@ -106,20 +108,20 @@ void Cylinder::makeWedge(float currentTheta, float nextTheta) {
     float z2 = r*sin(nextTheta);
 
     //MAKE BASE CASE triangles
-    float tri_x1 = (x1/m_param2);
-    float tri_z1 = (z1/m_param2);
-    float tri_x2 = (x2/m_param2);
-    float tri_z2 = (z2/m_param2);
+    float tri_x1 = (x1/m_param1);
+    float tri_z1 = (z1/m_param1);
+    float tri_x2 = (x2/m_param1);
+    float tri_z2 = (z2/m_param1);
     glm::vec3 v1 = {tri_x1, 0.5, tri_z1};
     glm::vec3 v2 = {0, 0.5, 0};
     glm::vec3 v3 = {tri_x2, 0.5, tri_z2};
     makeTriangle(v1, v2, v3, glm::vec3{0,1,0});
     makeTriangle({v3[0], -0.5, v3[2]}, {v2[0], -0.5, v2[2]}, {v1[0], -0.5, v1[2]}, glm::vec3{0,-1,0});
 
-    for(int i = 0; i < m_param2; i++){
+    for(int i = 0; i < m_param1; i++){
 
         /*Makes side tiles of cylinder*/
-        float next_y = y - (1.f)/(float) m_param2;
+        float next_y = y - (1.f)/(float) m_param1;
         glm::vec3 TR = {x1, y, z1};
         glm::vec3 TL = {x2, y, z2};
         glm::vec3 BR = {x1, next_y, z1};
@@ -145,10 +147,10 @@ void Cylinder::makeWedge(float currentTheta, float nextTheta) {
 }
 
 void Cylinder::makeCylinder() {
-    float thetaStep = glm::radians(360.f/m_param1);
+
+    float thetaStep = glm::radians(360.f/m_param2);
     float currTheta = 0.f;
-    m_param1 = m_param1 < 3 ? 3: m_param1; //if less than 3, clamp
-    for(int i = 0; i < m_param1; i++){
+    for(int i = 0; i < m_param2; i++){
         makeWedge(currTheta, currTheta+thetaStep);
         currTheta += thetaStep;
     }
@@ -156,6 +158,7 @@ void Cylinder::makeCylinder() {
 
 void Cylinder::setVertexData() {
     // TODO for Project 5: Lights, Camera
+    m_param2 = m_param2 < 3 ? 3: m_param2;
     makeCylinder();
 }
 

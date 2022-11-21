@@ -30,7 +30,8 @@ void recur(SceneNode *node, glm::mat4 CTM, RenderData &renderData){ //passing co
 
     if(node->primitives.size() > 0){
         for(int i = 0 ; i < node->primitives.size(); i++){
-            RenderShapeData data = RenderShapeData{*node->primitives[i], CTM};
+            glm::mat3 inv_trans = glm::mat3(glm::transpose(glm::inverse(CTM)));
+            RenderShapeData data = RenderShapeData{*node->primitives[i], CTM, inv_trans};
             renderData.shapes.push_back(data);
         }
     }

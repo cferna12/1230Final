@@ -94,11 +94,11 @@ void Cone::makeWedge(float currentTheta, float nextTheta) {
     float x2 = r*cos(nextTheta);
     float z2 = r*sin(nextTheta);
 
-    /*make bottom base case triangle*/
-    float tri_x1 = (x1/m_param2);
-    float tri_z1 = (z1/m_param2);
-    float tri_x2 = (x2/m_param2);
-    float tri_z2 = (z2/m_param2);
+    //make bottom base case triangle
+    float tri_x1 = (x1/m_param1);
+    float tri_z1 = (z1/m_param1);
+    float tri_x2 = (x2/m_param1);
+    float tri_z2 = (z2/m_param1);
     glm::vec3 v1 = {tri_x1, -0.5, tri_z1};
     glm::vec3 v2 = {0, -0.5, 0};
     glm::vec3 v3 = {tri_x2, -0.5, tri_z2};
@@ -110,9 +110,10 @@ void Cone::makeWedge(float currentTheta, float nextTheta) {
     glm::vec3 vv3 = {0,0.5,0};
 
 
-    /*Create base triangle*/
+
+    //create base triangle
     for(int i = 0; i < 1; i++){
-        float new_y = 0.5f - (1/(float) m_param2);
+        float new_y = 0.5f - (1/(float) m_param1);
         float new_r = (0.5 - new_y)/2;
         float x1 = new_r*cos(currentTheta);
         float z1 = new_r*sin(currentTheta);
@@ -131,28 +132,32 @@ void Cone::makeWedge(float currentTheta, float nextTheta) {
         r = new_r;
     }
 
-    for(int i = 1; i < m_param2; i++){
+    for(int i = 1; i < m_param1; i++){
         /*Makes side tiles of cone*/
-        float next_y = y - (1.f)/(float) m_param2;
+        float next_y = y - (1.f)/(float) m_param1;
         float next_r = (0.5 - next_y)/2;
+
         glm::vec3 TR = {r*cos(currentTheta), y, r*sin(currentTheta)};
         glm::vec3 TL = {r*cos(nextTheta), y, r*sin(nextTheta)};
         glm::vec3 BR = {next_r*cos(currentTheta), next_y, next_r*sin(currentTheta)};
         glm::vec3 BL = {next_r*cos(nextTheta), next_y, next_r*sin(nextTheta)};
         makeTile(TL, TR, BL, BR);
 
+
         /*Make bottom cap*/
         glm::vec3 v2 =   {tri_x1*(i+1), 0.5, tri_z1*(i+1)};
         glm::vec3 v4 =   {tri_x2*(i+1), 0.5, tri_z2*(i+1)};
         makeBottomTiles({v1[0], -0.5, v1[2]}, {v3[0], -0.5, v3[2]}, {v2[0], -0.5, v2[2]}, {v4[0], -0.5, v4[2]});
 
-        /*update variables*/
+
+        //update vars
         v1 = v2;
         v3 = v4;
         y = next_y;
         r = next_r;
 
     }
+
 
 
 }
@@ -179,23 +184,22 @@ void Cone::makeTipTriangle(glm::vec3 topRight,
                    glm::vec3 bottomLeft, glm::vec3 tip_norm){
 
     insertVec3(m_vertexData, topRight);
-    insertVec3(m_vertexData, {topRight[0], 0.25 - 0.5*topRight[1], topRight[2]});
+    insertVec3(m_vertexData, {2*topRight[0], 0.25 - 0.5*topRight[1], 2*topRight[2]});
 
     insertVec3(m_vertexData, topLeft);
     insertVec3(m_vertexData, glm::normalize(glm::vec3{tip_norm[0], -0.5 + 2*abs(topLeft[1]), tip_norm[2]}));
 
     insertVec3(m_vertexData, bottomLeft);
-    insertVec3(m_vertexData, {bottomLeft[0], 0.25 - 0.5*bottomLeft[1], bottomLeft[2]});
+    insertVec3(m_vertexData, {2*bottomLeft[0], 0.25 - 0.5*bottomLeft[1], 2*bottomLeft[2]});
 
 }
 
 
 void Cone::makeCone() {
 
-    float thetaStep = glm::radians(360.f/m_param1);
+    float thetaStep = glm::radians(360.f/m_param2);
     float currTheta = 0.f;
-    m_param1 = m_param1 < 3 ? 3: m_param1; //if less than 3, clamp
-    for(int i = 0; i < m_param1; i++){
+    for(int i = 0; i < m_param2; i++){
         makeWedge(currTheta, currTheta+thetaStep);
         currTheta += thetaStep;
     }
@@ -203,7 +207,7 @@ void Cone::makeCone() {
 
 void Cone::setVertexData() {
     // TODO for Project 5: Lights, Camera
-
+    m_param2 = m_param2 < 3 ? 3: m_param2;
     makeCone();
 }
 

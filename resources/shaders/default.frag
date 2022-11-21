@@ -13,12 +13,23 @@ uniform float k_a;
 
 // Task 13: declare relevant uniform(s) here, for diffuse lighting
 uniform float k_d;
-uniform vec4 world_light_pos;
+
 
 // Task 14: declare relevant uniform(s) here, for specular lighting
 uniform float k_s;
 uniform float shiny;
 uniform vec4 world_cam_pos;
+uniform vec3 cAmbient;
+uniform vec3 cDiffuse;
+uniform vec3 cSpecular;
+
+struct Light{
+    vec3 color;
+    vec3 dir;
+};
+
+uniform Light myLights[8];
+uniform int total_lights;
 
 void main() {
     // Remember that you need to renormalize vectors here if you want them to be normalized
@@ -31,27 +42,27 @@ void main() {
     fragColor = vec4(abs(world_norm), 1.0);
 
     // Task 12: add ambient component to output color
-    fragColor = vec4(k_a, k_a, k_a, 1);
+    fragColor = vec4(cAmbient*k_a, 1);
 
     // Task 13: add diffuse component to output color
-    vec3 surf_to_light_dir = normalize(vec3(world_light_pos) - world_pos);
-    float diff_intense = dot(surf_to_light_dir, normalize(world_norm));
-    diff_intense = diff_intense < 0 ? 0 : diff_intense;
+    for(int i = 0; i < total_lights; i ++){
+        vec3 surf_to_light_dir = normalize(-myLights[i].dir);
+        float dot_prod = dot(surf_to_light_dir, normalize(world_norm));
+        dot_prod = dot_prod < 0 ? 0 : dot_prod;
+//        if(dot_prod > 0){
+        fragColor += vec4(k_d*dot_prod*(cDiffuse*myLights[i].color), 1);
 
-    fragColor += k_d*diff_intense;
-    fragColor[3] = 1;
+            // Task 14: add specular component to output color
+        vec3 R = vec3(reflect(vec3(normalize(myLights[i].dir)), normalize(world_norm)));
+        vec3 E =  normalize(vec3(world_cam_pos) - world_pos);
+        float dot1 = dot(R, E);
+        dot1 = dot1 < 0 ? 0 : dot1;
+        dot1 = dot1 > 1 ? 1 : dot1;
 
-    // Task 14: add specular component to output color
-//    reflect()
-    vec3 R = vec3(reflect(vec3(normalize(world_pos - vec3(world_light_pos))), normalize(world_norm)));
-    vec3 E =  normalize(vec3(world_cam_pos) - world_pos);
-    float dot = dot(R, E);
-    dot = dot < 0 ? 0 : dot;
-    dot = dot > 1 ? 1 : dot;
-    float spec_intens = pow(dot, shiny);
-    fragColor += k_s*spec_intens;
-    fragColor[3] = 1;
-
+        float spec_intens = shiny > 0 ? pow(dot1, shiny) : 0;
+        fragColor += vec4(k_s*cSpecular*spec_intens,1);
+//        }
+    }
 
 }
 

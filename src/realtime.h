@@ -79,6 +79,7 @@ private:
     glm::vec4 m_lightPos = glm::vec4(1); // The world-space position of the point light
     glm::vec4 m_camPos = glm::vec4(1);
 
+    std::vector<float> shape_data_sizes;
 
     float m_ka;
     float m_kd;
