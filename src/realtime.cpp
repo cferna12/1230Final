@@ -142,6 +142,64 @@ void Realtime::paintGL() {
     glm::mat4 curr_CTM;
     glm::mat3 curr_ITCTM;
 
+    glUseProgram(m_shader);
+    /*Pass in m_view and m_proj*/
+    glUniformMatrix4fv(glGetUniformLocation(m_shader, "m_view"), 1, GL_FALSE, &m_view[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(m_shader, "m_proj"), 1, GL_FALSE, &m_proj[0][0]);
+
+    glUniform1f(glGetUniformLocation(m_shader, "k_a"), m_metaData.globalData.ka);
+    glUniform1f(glGetUniformLocation(m_shader, "k_d"), m_metaData.globalData.kd);
+    glUniform1f(glGetUniformLocation(m_shader, "k_s"), m_metaData.globalData.ks);
+
+    auto cam_pos = m_metaData.cameraData.pos;
+    glUniform4fv(glGetUniformLocation(m_shader, "world_cam_pos"), 1, &cam_pos[0]);
+
+    /*Loop through lights and send to fragment shader*/
+    glUniform1i(glGetUniformLocation(m_shader, "total_lights"), m_metaData.lights.size());
+    for(int i = 0; i < m_metaData.lights.size(); i++){
+        std::string light_dir = "myLights[" + std::to_string(i) + "].dir";
+        GLint lights_dir_loc = glGetUniformLocation(m_shader, light_dir.c_str());
+        glUniform3fv(lights_dir_loc, 1, &m_metaData.lights[i].dir[0]);
+
+        std::string light_color = "myLights[" + std::to_string(i) + "].color";
+        GLint lights_color_loc = glGetUniformLocation(m_shader, light_color.c_str());
+        glUniform3fv(lights_color_loc, 1,  &m_metaData.lights[i].color[0]);
+
+        std::string light_pos = "myLights[" + std::to_string(i) + "].pos";
+        GLint lights_pos_loc = glGetUniformLocation(m_shader, light_pos.c_str());
+        glUniform3fv(lights_pos_loc, 1, &m_metaData.lights[i].pos[0]);
+
+        std::string light_func = "myLights[" + std::to_string(i) + "].function";
+        GLint lights_func_loc = glGetUniformLocation(m_shader, light_func.c_str());
+        glUniform3fv(lights_func_loc, 1, &m_metaData.lights[i].function[0]);
+
+        std::string light_angle = "myLights[" + std::to_string(i) + "].angle";
+        GLint lights_angle_loc = glGetUniformLocation(m_shader, light_angle.c_str());
+        glUniform1f(lights_angle_loc, m_metaData.lights[i].angle);
+
+        std::string light_penumbra = "myLights[" + std::to_string(i) + "].penumbra";
+        GLint lights_penumbra_loc = glGetUniformLocation(m_shader, light_penumbra.c_str());
+        glUniform1f(lights_penumbra_loc, m_metaData.lights[i].penumbra);
+
+        std::string light_type = "myLights[" + std::to_string(i) + "].type";
+        GLint lights_type_loc = glGetUniformLocation(m_shader, light_type.c_str());
+        glUniform1i(lights_type_loc, (int) m_metaData.lights[i].type);
+
+    }
+
+    /*Pass in m_view and m_proj*/
+
+
+//    glUniformMatrix4fv(glGetUniformLocation(m_shader, "m_view"), 1, GL_FALSE, &m_view[0][0]);
+//    glUniformMatrix4fv(glGetUniformLocation(m_shader, "m_proj"), 1, GL_FALSE, &m_proj[0][0]);
+
+//    glUniform1f(glGetUniformLocation(m_shader, "k_a"), m_metaData.globalData.ka);
+//    glUniform1f(glGetUniformLocation(m_shader, "k_d"), m_metaData.globalData.kd);
+
+//    /*Pass shininess, m_ks, and world-space camera position*/
+//    glUniform1f(glGetUniformLocation(m_shader, "k_s"), m_metaData.globalData.ks);
+
+
     /*Loop through shapes in scene and paint each*/
     for(auto shape: m_metaData.shapes){
         switch(shape.primitive.type){
@@ -162,50 +220,23 @@ void Realtime::paintGL() {
                 size_index = 3;
                 break;
         }
-
-
         curr_CTM = shape.ctm;
         curr_ITCTM = shape.inv_transpose;
         glBindVertexArray(curr_vao_id);
 
-        //Activate shader
-        glUseProgram(m_shader);
 
         /*Send shape matrices*/
         glUniformMatrix4fv(glGetUniformLocation(m_shader, "m_model"), 1, GL_FALSE, &curr_CTM[0][0]);
         glUniformMatrix3fv(glGetUniformLocation(m_shader, "m_inverse_transpose"), 1, GL_FALSE, &curr_ITCTM[0][0]);
 
-        /*Pass in m_view and m_proj*/
-        glUniformMatrix4fv(glGetUniformLocation(m_shader, "m_view"), 1, GL_FALSE, &m_view[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(m_shader, "m_proj"), 1, GL_FALSE, &m_proj[0][0]);
-
-        glUniform1f(glGetUniformLocation(m_shader, "k_a"), m_metaData.globalData.ka);
-        glUniform1f(glGetUniformLocation(m_shader, "k_d"), m_metaData.globalData.kd);
-
-        /*Loop through lights and send to fragment shader*/
-        glUniform1i(glGetUniformLocation(m_shader, "total_lights"), m_metaData.lights.size());
-        for(int i = 0; i < m_metaData.lights.size(); i++){
-            std::string light_dir = "myLights[" + std::to_string(i) + "].dir";
-            GLint lights_dir_loc = glGetUniformLocation(m_shader, light_dir.c_str());
-            glUniform3f(lights_dir_loc, m_metaData.lights[i].dir[0], m_metaData.lights[i].dir[1], m_metaData.lights[i].dir[2]);
-
-            std::string light_color = "myLights[" + std::to_string(i) + "].color";
-            GLint lights_color_loc = glGetUniformLocation(m_shader, light_color.c_str());
-            glUniform3f(lights_color_loc, m_metaData.lights[i].color[0], m_metaData.lights[i].color[1], m_metaData.lights[i].color[2]);
-        }
-
-        /*Pass shininess, m_ks, and world-space camera position*/
-        glUniform1f(glGetUniformLocation(m_shader, "k_s"), m_metaData.globalData.ks);
-        auto cam_pos = m_metaData.cameraData.pos;
         //check for shininess == 0 edge case
         auto shiny = shape.primitive.material.shininess == 0 ? 1 : shape.primitive.material.shininess;
         glUniform1f(glGetUniformLocation(m_shader, "shiny"), shiny);
-        glUniform4f(glGetUniformLocation(m_shader, "world_cam_pos"), cam_pos[0], cam_pos[1], cam_pos[2], cam_pos[3]);
 
         /*Send material colors to fragment shader*/
-        glUniform3f(glGetUniformLocation(m_shader, "cAmbient"), shape.primitive.material.cAmbient[0], shape.primitive.material.cAmbient[1], shape.primitive.material.cAmbient[2]);
-        glUniform3f(glGetUniformLocation(m_shader, "cDiffuse"), shape.primitive.material.cDiffuse[0], shape.primitive.material.cDiffuse[1], shape.primitive.material.cDiffuse[2]);
-        glUniform3f(glGetUniformLocation(m_shader, "cSpecular"), shape.primitive.material.cSpecular[0], shape.primitive.material.cSpecular[1], shape.primitive.material.cSpecular[2]);
+        glUniform3fv(glGetUniformLocation(m_shader, "cAmbient"), 1, &shape.primitive.material.cAmbient[0]);
+        glUniform3fv(glGetUniformLocation(m_shader, "cDiffuse"), 1, &shape.primitive.material.cDiffuse[0]);
+        glUniform3fv(glGetUniformLocation(m_shader, "cSpecular"), 1, &shape.primitive.material.cSpecular[0]);
 
         // Draw Command
         glDrawArrays(GL_TRIANGLES, 0, shape_data_sizes[size_index] / 6);
@@ -213,9 +244,11 @@ void Realtime::paintGL() {
         // Unbind Vertex Array
         glBindVertexArray(0);
 
-        //unbind shader
-        glUseProgram(0);
+                //unbind shader
+//                glUseProgram(0);
     }
+
+    glUseProgram(0);
 }
 
 /**
@@ -241,6 +274,7 @@ void Realtime::sceneChanged() {
     m_view = Camera::updateViewMat(m_metaData.cameraData);
     m_proj = Camera::updateProjMat(settings.nearPlane, settings.farPlane, width(), height(), m_metaData.cameraData.heightAngle);
 
+    int lgit_type = (int) m_metaData.lights[0].type;
     update(); // asks for a PaintGL() call to occur
 }
 
@@ -302,6 +336,36 @@ void Realtime::mouseReleaseEvent(QMouseEvent *event) {
     }
 }
 
+glm::mat4 RodriguesX(int deltaX){
+    float theta = glm::radians((float) deltaX/5.f);
+    glm::vec4 col_1 = {cos(theta), 0, -sin(theta), 0};
+    glm::vec4 col_2 = {0, cos(theta) + (1-cos(theta)), 0, 0};
+    glm::vec4 col_3 = {sin(theta), 0, cos(theta), 0};
+    glm::vec4 col_4 = {0,0,0,1};
+
+    auto matrix = glm::mat4(col_1, col_2, col_3, col_4); //should be correct
+    return matrix;
+}
+
+glm::mat4 RodriguesY(int deltaY, glm::vec3 axis){
+    float theta = glm::radians((float) deltaY/5.f);
+    float cos2 = 1- cos(theta);
+    float cos1 = cos(theta);
+    float sin1 = sin(theta);
+
+    float uxuy_cos2 = axis[0]*axis[1]*cos2;
+    float uyuz_cos2 = axis[1]*axis[2]*cos2;
+    float uxuz_cos2 = axis[0]*axis[2]*cos2;
+
+    glm::vec4 col_1 = {cos1 + pow(axis[0], 2)*cos2, uxuy_cos2 + axis[2]*sin1, uxuz_cos2 - axis[1]*sin1, 0};
+    glm::vec4 col_2 = {uxuy_cos2 - axis[2]*sin1, cos1 + pow(axis[1],2)*cos2, uyuz_cos2 + axis[0]*sin1, 0};
+    glm::vec4 col_3 = {uxuz_cos2 + axis[1]*sin1, uyuz_cos2 - axis[0]*sin1, cos1 + pow(axis[2], 2)*cos2, 0};
+    glm::vec4 col_4 = {0,0,0,1};
+
+    auto matrix = glm::mat4(col_1, col_2, col_3, col_4); //should be correct
+    return matrix;
+}
+
 void Realtime::mouseMoveEvent(QMouseEvent *event) {
     if (m_mouseDown) {
         int posX = event->position().x();
@@ -310,7 +374,16 @@ void Realtime::mouseMoveEvent(QMouseEvent *event) {
         int deltaY = posY - m_prev_mouse_pos.y;
         m_prev_mouse_pos = glm::vec2(posX, posY);
 
+        m_metaData.cameraData.look = RodriguesX(deltaX)*m_metaData.cameraData.look;
+        m_view = Camera::updateViewMat(m_metaData.cameraData);
         // Use deltaX and deltaY here to rotate
+
+//        m_view = RodriguesX(deltaX)*m_view;
+        auto axis = glm::normalize(glm::cross(glm::vec3(m_metaData.cameraData.look), glm::vec3(m_metaData.cameraData.up)));
+        m_metaData.cameraData.look = RodriguesY(deltaY, axis)*m_metaData.cameraData.look;
+        m_view = Camera::updateViewMat(m_metaData.cameraData);
+//        m_view = RodriguesY(deltaY, axis)*m_view;
+
         update(); // asks for a PaintGL() call to occur
     }
 }
@@ -321,5 +394,68 @@ void Realtime::timerEvent(QTimerEvent *event) {
     m_elapsedTimer.restart();
 
     // Use deltaTime and m_keyMap here to move around
+
+    float distance = 5*deltaTime;
+    glm::mat4 translate = glm::mat4(1);
+
+
+    //do i need to normalize anything?
+    if(m_keyMap[Qt::Key::Key_W]){
+//        distance = 5*deltaTime;
+//        m_view = glm::translate(m_view, glm::vec3(-m_metaData.cameraData.look)*distance);
+//        glm::mat4 translate = glm::mat4(1);
+        m_metaData.cameraData.pos += glm::normalize(m_metaData.cameraData.look)*distance;
+        m_view = Camera::updateViewMat(m_metaData.cameraData);
+//        translate[3] = -glm::normalize(m_metaData.cameraData.look);
+//        translate[3][3] = 1;
+//        m_view = translate*m_view;
+    }
+
+    if(m_keyMap[Qt::Key::Key_S]){
+//        distance = 2*deltaTime;
+//        m_view = glm::translate(m_view, glm::vec3(m_metaData.cameraData.look)*distance);
+//        glm::mat4 translate = glm::mat4(1);
+//        translate[3] = glm::normalize(m_metaData.cameraData.look);
+//        translate[3][3] = 1;
+//        m_view = translate*m_view;
+        m_metaData.cameraData.pos -= glm::normalize(m_metaData.cameraData.look)*distance;
+        m_view = Camera::updateViewMat(m_metaData.cameraData);
+    }
+
+    if(m_keyMap[Qt::Key::Key_A]){
+//        auto perp = glm::normalize( glm::cross(glm::vec3(m_metaData.cameraData.look), glm::vec3(m_metaData.cameraData.up)));
+//        translate[3] = glm::vec4(perp, 0);
+//        translate[3][3]= 1;
+//        m_view = translate*m_view;
+        m_metaData.cameraData.pos -= glm::vec4(glm::normalize(glm::cross(glm::vec3(m_metaData.cameraData.look), glm::vec3(m_metaData.cameraData.up)))*distance, 0);
+        m_view = Camera::updateViewMat(m_metaData.cameraData);
+    }
+
+    if(m_keyMap[Qt::Key::Key_D]){
+//        auto perp = -glm::normalize(glm::cross(glm::vec3(m_metaData.cameraData.look), glm::vec3(m_metaData.cameraData.up)));
+//        translate[3] = glm::vec4(perp, 0);
+//        translate[3][3]= 1;
+//        m_view = translate*m_view;
+        m_metaData.cameraData.pos += glm::vec4(glm::normalize(glm::cross(glm::vec3(m_metaData.cameraData.look), glm::vec3(m_metaData.cameraData.up)))*distance, 0);
+        m_view = Camera::updateViewMat(m_metaData.cameraData);
+    }
+
+    if(m_keyMap[Qt::Key::Key_Space]){
+//        translate[3] = glm::vec4(0,-1,0,0)*distance;
+//        translate[3][3]= 1;
+//        m_view = translate*m_view;
+//    }
+        m_metaData.cameraData.pos += glm::vec4(0,1,0,0)*distance;
+        m_view = Camera::updateViewMat(m_metaData.cameraData);
+    }
+    if(m_keyMap[Qt::Key::Key_Control]){
+//        translate[3] = glm::vec4(0,1,0,0)*distance;
+//        translate[3][3]= 1;
+//        m_view *= translate;
+        m_metaData.cameraData.pos += glm::vec4(0,-1,0,0)*distance;
+        m_view = Camera::updateViewMat(m_metaData.cameraData);
+    }
+
+
     update(); // asks for a PaintGL() call to occur
 }
