@@ -2,6 +2,8 @@
 
 All project handouts can be found [here](https://cs1230.graphics/projects).
 
+
+# Project 5:
 Bugs:
 - No known bugs
 
@@ -14,3 +16,12 @@ Design:
 - Camera class with helper functions for producing new projection and view matrices based on setting changes
 - Initialize all four vbos and vaos in initializeGL()
 
+
+# Project 6:
+Bugs:
+    - No known bugs
+
+Extra Credit:
+    - Extra Credit 1: Grayscale filter
+    - Extra Credit 2: Sharpen filter
+    

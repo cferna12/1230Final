@@ -33,6 +33,9 @@ protected:
     void initializeGL() override;                       // Called once at the start of the program
     void paintGL() override;                            // Called whenever the OpenGL context changes or by an update() request
     void resizeGL(int width, int height) override;      // Called when window size changes
+    void makeFBO();
+    void paintTexture(GLuint texture);
+
 
 private:
     void keyPressEvent(QKeyEvent *event) override;
@@ -80,5 +83,22 @@ private:
     float curr_p2 = 1;
 
     void updateBuffers();
+
+
+    int m_fbo_width;
+    int m_fbo_height;
+    int m_screen_width;
+    int m_screen_height;
+
+    GLuint m_texture_shader;
+    GLuint m_fullscreen_vbo;
+    GLuint m_fullscreen_vao;
+    QImage m_image;
+    GLuint m_kitten_texture;
+    GLuint m_fbo;
+    GLuint m_fbo_texture;
+    GLuint m_fbo_renderbuffer;
+    GLuint m_phong_shader;
+    GLuint m_defaultFBO;
 
 };
