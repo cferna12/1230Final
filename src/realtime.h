@@ -101,4 +101,6 @@ private:
     GLuint m_phong_shader;
     GLuint m_defaultFBO;
 
+    GLuint obj_vbo;
+    GLuint obj_vao;
 };

@@ -26,6 +26,9 @@ private:
     void connectKernelBasedFilter();
     void connectUploadFile();
     void connectExtraCredit();
+    void connectToon();
+    void connectToon2();
+    void connectToon3();
 
     Realtime *realtime;
     QCheckBox *filter1;
@@ -40,6 +43,14 @@ private:
     QDoubleSpinBox *nearBox;
     QDoubleSpinBox *farBox;
 
+    QSlider *toon1Slider;
+    QSpinBox *toon1Box;
+
+    QSlider *toon2Slider;
+    QSpinBox *toon2Box;
+
+    QSlider *toon3Slider;
+    QDoubleSpinBox *toon3Box;
     // Extra Credit:
     QCheckBox *ec1;
     QCheckBox *ec2;
@@ -57,6 +68,10 @@ private slots:
     void onValChangeNearBox(double newValue);
     void onValChangeFarBox(double newValue);
 
+    void onValChangeToon1(int newValue);
+    void onValChangeToon2(int newValue);
+    void onValChangeToon3Slider(int newValue);
+    void onValChangeToon3Box(double newValue);
     // Extra Credit:
     void onExtraCredit1();
     void onExtraCredit2();

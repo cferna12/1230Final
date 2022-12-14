@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::Floor);
 
-    QCoreApplication::setApplicationName("Projects 5 & 6: Lights, Camera & Action!");
+    QCoreApplication::setApplicationName("Final Project: Toon Shading");
     QCoreApplication::setOrganizationName("CS 1230");
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
 

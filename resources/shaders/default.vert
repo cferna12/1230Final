@@ -20,8 +20,13 @@ uniform mat3 m_inverse_transpose;
 uniform mat4 m_view;
 uniform mat4 m_proj;
 
+uniform bool using_obj_file;
 
 void main() {
+    if(using_obj_file){
+        world_norm = obj_norm;
+        gl_Position = obj_pos;
+    }
     world_pos = vec3((m_model)*vec4(obj_pos,1));
     world_norm = normalize(m_inverse_transpose*normalize(obj_norm));
     gl_Position = m_proj*m_view*m_model*vec4(obj_pos,1.0);
