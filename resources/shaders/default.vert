@@ -25,7 +25,7 @@ uniform bool using_obj_file;
 void main() {
     if(using_obj_file){
         world_norm = obj_norm;
-        gl_Position = obj_pos;
+        gl_Position = vec4(obj_pos,1);
     }
     world_pos = vec3((m_model)*vec4(obj_pos,1));
     world_norm = normalize(m_inverse_transpose*normalize(obj_norm));

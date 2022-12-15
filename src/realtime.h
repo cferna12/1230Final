@@ -17,6 +17,7 @@
 #include "shapes/Sphere.h"
 #include "shapes/Cylinder.h"
 #include "shapes/Cone.h"
+#include <QMatrix4x4>
 
 class Realtime : public QOpenGLWidget
 {
@@ -103,4 +104,8 @@ private:
 
     GLuint obj_vbo;
     GLuint obj_vao;
+
+    QMatrix4x4 m_proj2;
+    QMatrix4x4 m_camera;
+    QMatrix4x4 m_world;
 };

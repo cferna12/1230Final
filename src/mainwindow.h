@@ -29,6 +29,8 @@ private:
     void connectToon();
     void connectToon2();
     void connectToon3();
+    void connectToon4();
+
 
     Realtime *realtime;
     QCheckBox *filter1;
@@ -51,6 +53,9 @@ private:
 
     QSlider *toon3Slider;
     QDoubleSpinBox *toon3Box;
+
+    QSlider *toon4Slider;
+    QDoubleSpinBox *toon4Box;
     // Extra Credit:
     QCheckBox *ec1;
     QCheckBox *ec2;
@@ -72,6 +77,9 @@ private slots:
     void onValChangeToon2(int newValue);
     void onValChangeToon3Slider(int newValue);
     void onValChangeToon3Box(double newValue);
+
+    void onValChangeToon4Slider(int newValue);
+    void onValChangeToon4Box(double newValue);
     // Extra Credit:
     void onExtraCredit1();
     void onExtraCredit2();

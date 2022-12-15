@@ -26,6 +26,7 @@ float theta = 180.f;
 
 bool using_obj_loader = false;
 objl::Loader loader;// = new objl::Loader();
+bool loaded = false;
 Realtime::Realtime(QWidget *parent)
     : QOpenGLWidget(parent)
 {
@@ -206,24 +207,7 @@ void Realtime::paintGL() {
     glm::mat3 curr_ITCTM;
 
     glUseProgram(m_shader);
-    if(using_obj_loader){
-        glBindVertexArray(obj_vao);
-//        auto shiny = shape.primitive.material.shininess == 0 ? 1 : shape.primitive.material.shininess;
 
-        glUniform1i(glGetUniformLocation(m_shader, ""))
-        glUniform1f(glGetUniformLocation(m_shader, "shiny"), loader.LoadedMeshes[0].MeshMaterial.Ns);
-
-        /*Send material colors to fragment shader*/
-        glUniform3fv(glGetUniformLocation(m_shader, "cAmbient"), 1, &loader.LoadedMeshes[0].MeshMaterial.Ka.X);
-        glUniform3fv(glGetUniformLocation(m_shader, "cDiffuse"), 1, &loader.LoadedMeshes[0].MeshMaterial.Kd.X);
-        glUniform3fv(glGetUniformLocation(m_shader, "cSpecular"), 1, &loader.LoadedMeshes[0].MeshMaterial.Ks.X);
-
-        glUniform1f(glGetUniformLocation(m_shader, "k_a"), 1.f);
-        glUniform1f(glGetUniformLocation(m_shader, "k_d"), 1.f);
-        glUniform1f(glGetUniformLocation(m_shader, "k_s"), 1.f);
-    }
-
-    else{
 
     /*Pass in Camera data and global data*/
     glUniformMatrix4fv(glGetUniformLocation(m_shader, "m_view"), 1, GL_FALSE, &m_view[0][0]);
@@ -237,32 +221,22 @@ void Realtime::paintGL() {
     glUniform1f(glGetUniformLocation(m_shader, "k_s"), m_metaData.globalData.ks);
 
 
-    glUniform1i(glGetUniformLocation(m_shader, "toon_shading"), settings.extraCredit3);
+    glUniform1i(glGetUniformLocation(m_shader, "toon_shading"), settings.toonShade);
 
     glUniform1i(glGetUniformLocation(m_shader, "rim_thickness"), settings.toon1);
     glUniform1i(glGetUniformLocation(m_shader, "toon_levels"), settings.toon2);
     glUniform1f(glGetUniformLocation(m_shader, "rim_length"), settings.toon3);
-//    glUniform1f(glGetUniformLocation(m_shader, "alternate_rim"), settings.extraCredit4);
+    glUniform1f(glGetUniformLocation(m_shader, "alternate_rim"), settings.glowRim);
+    glUniform1f(glGetUniformLocation(m_shader, "blend"), settings.toon4_blend);
+//    std::cout << "blend: " << settings.toon4_blend << std::endl;
 
 //    std::cout << settings.toon3 << std::endl;
     /*Loop through lights and send to fragment shader*/
     glUniform1i(glGetUniformLocation(m_shader, "total_lights"), m_metaData.lights.size());
     glm::vec3 light_dir = glm::vec3(0,-1,0);
 
-    bool spaceship = settings.extraCredit4;
-    bool moving_light = settings.extraCredit1;
-    if(spaceship && settings.extraCredit3){
-        glm::vec3 light_dir_test = glm::vec3(0,-1,0);
-        std::string light_dir = "myLights[" + std::to_string(0) + "].dir";
-        GLint lights_dir_loc = glGetUniformLocation(m_shader, light_dir.c_str());
-        glUniform3fv(lights_dir_loc, 1, &light_dir_test[0]);
-
-        std::string light_type = "myLights[" + std::to_string(0) + "].type";
-        GLint lights_type_loc = glGetUniformLocation(m_shader, light_type.c_str());
-        glUniform1i(lights_type_loc, (int) 1);
-    }
-
-    else if(moving_light){
+    bool moving_light = settings.movingLight;
+    if(moving_light){
         auto light_dir_test = glm::vec3(-curr_x, -curr_y, 0);
 
         std::string light_dir = "myLights[" + std::to_string(0) + "].dir";
@@ -273,7 +247,8 @@ void Realtime::paintGL() {
         glUniform1i(lights_type_loc, (int) 1);
 
         std::string light_color = "myLights[" + std::to_string(0) + "].color";
-        glm::vec3 light_col = glm::vec3(1);
+
+        glm::vec3 light_col = m_metaData.lights[0].color;//glm::vec3(1);
         GLint lights_color_loc = glGetUniformLocation(m_shader, light_color.c_str());
         glUniform3fv(lights_color_loc, 1,  &light_col[0]);
 
@@ -356,7 +331,7 @@ void Realtime::paintGL() {
 
         // Unbind Vertex Array
         glBindVertexArray(0);
-    }
+
     }
     glUseProgram(0);
 
@@ -380,7 +355,7 @@ void Realtime::paintTexture(GLuint texture){
     glUseProgram(m_texture_shader);
 
     /*Only send kernels and screen size if kernelbased filter enabled*/
-    if(settings.extraCredit2 || settings.kernelBasedFilter){
+    if(settings.extraCredit4 || settings.kernelBasedFilter){
         glm::mat3 k = {-1.f,-1.f,-1.f,
                       -1.f,17.f,-1.f,
                       -1.f,-1.f,-1.f};
@@ -395,7 +370,7 @@ void Realtime::paintTexture(GLuint texture){
     glUniform1i(glGetUniformLocation(m_texture_shader, "kernel_based"), settings.kernelBasedFilter);
     glUniform1i(glGetUniformLocation(m_texture_shader, "invert"), settings.perPixelFilter);
     glUniform1i(glGetUniformLocation(m_texture_shader, "grayscale"), settings.extraCredit1);
-    glUniform1i(glGetUniformLocation(m_texture_shader, "sharpen"), settings.extraCredit2);
+    glUniform1i(glGetUniformLocation(m_texture_shader, "sharpen"), settings.extraCredit4);
 
 
     glBindVertexArray(m_fullscreen_vao);
@@ -467,6 +442,9 @@ void Realtime::resizeGL(int w, int h) {
 
     /*Update proj matrix*/
     m_proj = Camera::updateProjMat(settings.nearPlane, settings.farPlane, size().width(), size().height(), m_metaData.cameraData.heightAngle);
+
+    m_proj2.setToIdentity();
+    m_proj2.perspective(45.0f, GLfloat(w) / h, 0.01f, 100.0f);
 }
 
 /**
@@ -474,43 +452,11 @@ void Realtime::resizeGL(int w, int h) {
  * Loads in new scene data to m_metaData variable and updates view and projection matrices accordingly
  */
 void Realtime::sceneChanged() {
-    bool obj_file = false;
-    if(obj_file){
-
-        loader.LoadFile(settings.sceneFilePath);
-        glGenBuffers(1, &obj_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, obj_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*loader.LoadedMeshes[0].Vertices.size(), loader.LoadedMeshes[0].Vertices.data(), GL_STATIC_DRAW);
-
-        // Generate, and bind vao
-        glGenVertexArrays(1, &obj_vao);
-        glBindVertexArray(obj_vao);
-
-        //position
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8 * sizeof(GLfloat),reinterpret_cast<void *>(0));
-
-        // Enable and define attribute 1 to store vertex normals
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,8 * sizeof(GLfloat), reinterpret_cast<void *>(3*sizeof(GLfloat)));
-
-        //texture
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8 * sizeof(GLfloat), reinterpret_cast<void *>(6*sizeof(GLfloat)));
-
-        // Clean-up bindings
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-
-
-
-    }
-    else{
     bool success  = SceneParser::parse(settings.sceneFilePath, m_metaData);
     m_view = Camera::updateViewMat(m_metaData.cameraData);
     m_proj = Camera::updateProjMat(settings.nearPlane, settings.farPlane, width(), height(), m_metaData.cameraData.heightAngle);
     update(); // asks for a PaintGL() call to occur
-    }
+
 }
 
 

@@ -34,6 +34,8 @@ uniform int toon_levels;
 uniform bool toon_shading;
 uniform bool alternate_rim;
 
+uniform float blend;
+
 
 void main() {
 //    fragColor = vec4(abs(world_norm), 1.0);
@@ -49,29 +51,51 @@ void main() {
                 }
                 vec3 test_ambient = cAmbient == vec3(0) ? 0.5*cDiffuse: cAmbient;
                 float dot_prod = dot(surf_to_light_dir, normalize(world_norm));
-//                fragColor += vec4(test_ambient*k_a,1);
+                fragColor += vec4(test_ambient*k_a*0.5,1);
+
+                float diffuse_factor = 0;
+
+                if(toon_levels == 0){
+//                    fragColor += vec4(test_ambient*k_a,1);
+//                    float light_intensity = dot_prod > 0 ? 1 : 0; //divide into dark and light bands
+//                    dot_prod = dot_prod < 0 ? 0 : dot_prod;
+                    float light_intensity = smoothstep(0, blend, dot_prod); //smoothen the change between light and dark
+//                    light_intensity = dot_prod;
+                    vec3 diffuse = k_d*cDiffuse;
+                    fragColor += vec4(diffuse*light_intensity, 1);
+//                    if(light_intensity ==  0){
+//                        fragColor += vec4(cDiffuse*(toon_scale_factor/4), 1);
+//                    }
+                }
 
                 ///used for toon levels
-                float diffuse_factor = ceil(dot_prod * toon_levels) * toon_scale_factor;
-                if(dot_prod > 0){
-                    float diffuse_factor = ceil(dot_prod * toon_levels) * toon_scale_factor;
+
+                else if(dot_prod > 0){
+                    if(toon_levels == 1){
+                        diffuse_factor = smoothstep(0, blend, dot_prod);
+                    }
+                    else{
+
+                        diffuse_factor = ceil(dot_prod * toon_levels) * toon_scale_factor;
+
+                    }
+
+
+//                    diffuse_factor = smoothstep(diffuse_factor - toon_scale_factor, diffuse_factor-toon_scale_factor+0.2, dot_prod);
                     vec3 diffuse = k_d*cDiffuse;
                     fragColor += vec4(diffuse_factor*diffuse, 1);
 
+//                    }
+
                 }
                 else{
-                    fragColor += vec4(cDiffuse*(toon_scale_factor/4), 1);
+//                    fragColor += vec4(cDiffuse*(toon_scale_factor/4), 1);
+                    vec3 diffuse = k_d*cDiffuse;
+//                    fragColor += vec4(diffuse*(toon_scale_factor/2), 1);
                 }
 
                 /*Below is two layer shading code*/
-//                float light_intensity = dot_prod > 0 ? 1 : 0; //divide into dark and light bands
 
-//                light_intensity = smoothstep(0, 0.05, dot_prod); //smoothen the change between light and dark
-
-//                vec3 amb_and_lightIntensity = light_intensity + test_ambient;//adds ambient lighting to prevent having a black dark half
-
-                vec3 diffuse = k_d*cDiffuse*diffuse_factor;
-//                fragColor += vec4(diffuse*amb_and_lightIntensity, 1);
 
 
                 /*Specular code*/
@@ -97,7 +121,7 @@ void main() {
                     float rim_threshold = rim_length; //controls how far rim extends
                     rim_dot = rim_dot*pow(dot_prod, rim_threshold);
                     rim_dot = smoothstep(rim_amt-0.01, rim_amt + 0.01, rim_dot); //not sure what this does
-                    fragColor += vec4(cDiffuse*rim_dot*myLights[0].color*k_s,1); //maybe dont mix with light color
+                    fragColor += vec4(cDiffuse*diffuse_factor*rim_dot*myLights[0].color*k_s,1); //maybe dont mix with light color
                 }
 
                 //alternative rim light code
@@ -106,9 +130,9 @@ void main() {
                     float rim_dot = 1 - dot(normalize(world_norm), E); //rim intensity
                     rim_dot = max(0.0, rim_dot);
                     dot_prod = dot_prod < 0 ? 0: dot_prod; //clamp if below 0
-                    float rim_threshold = rim_length+1; //controls how far rim extends
+                    float rim_threshold = rim_length+0.75; //controls how far rim extends
                     rim_dot = pow(rim_dot, rim_threshold);
-                    fragColor += vec4(rim_dot*myLights[0].color*k_s,1); //maybe dont mix with light color
+                    fragColor += vec4(cDiffuse*rim_dot*myLights[0].color*k_s,1); //maybe dont mix with light color
                 }
                 break;
             }
